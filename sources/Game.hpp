@@ -6,6 +6,7 @@
 #include <map>
 
 const int ZERO = 0;
+const int MAX_PLAYERS_AMOUNT = 6;
 const int MUST_COUP_AMOUNT = 10;
 const int LAST_ACTION_VALS = 2;
 
@@ -37,11 +38,13 @@ namespace coup
         std::map<std::string, std::string> kill_list;
         int player_turn;
         bool game_is_on;
+        bool game_started;
 
     public:
         Game();
         void add_player(std::string &name);
-        bool get_game_is_on();
+        void set_game_started();
+        bool get_game_is_on() const;
         void kill_player(std::string &name);
         void set_next_player_turn();
         void set_player_action(const int do_action, std::string &to);

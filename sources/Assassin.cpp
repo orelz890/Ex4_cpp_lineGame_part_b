@@ -25,7 +25,7 @@ namespace coup
         {
             std::vector<std::string> players_left = this->my_game->players();
             bool flag = false;
-            for (std::string name : players_left)
+            for (std::string &name : players_left)
             {
                 if (strcmp(name.c_str(), player.get_player_name().c_str()) == 0)
                 {
@@ -51,6 +51,7 @@ namespace coup
                 {
                     this->my_game->set_player_action(ASSASSIN_COUP , player.get_player_name());
                     this->my_game->set_kill_list(player.get_player_name(),this->name);
+                    this->my_game->set_next_player_turn();
                 }
                 else
                 {
@@ -65,7 +66,6 @@ namespace coup
                 this->last_action[1] = player.get_player_name();
             }
         }
-        this->my_game->set_next_player_turn();
     }
 
 }

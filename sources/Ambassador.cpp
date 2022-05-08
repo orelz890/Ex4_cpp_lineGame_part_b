@@ -38,7 +38,7 @@ namespace coup
 
     void Ambassador::block(Player &captain)
     {
-        if (strcmp(captain.role().c_str(), "Captain") == 0)
+        if (strcmp(captain.role().c_str(), "Captain") != 0)
         {
             throw std::runtime_error(captain.get_player_name() + " is not a captain you are an Ambassador!\n");
         }
@@ -46,7 +46,9 @@ namespace coup
         {
             throw std::runtime_error(captain.get_player_name() + " didnt steal from anyone therfore, you cant block him!\n");
         }
-        this->my_game->set_player_action(STEAL_BLOCKED, captain.get_player_name());
+        captain.set_coins(captain.coins() - STEAL);
+        captain.inc_vic_coins(STEAL);
     }
+
 
 }

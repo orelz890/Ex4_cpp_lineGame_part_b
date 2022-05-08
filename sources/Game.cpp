@@ -2,6 +2,7 @@
 #include "Game.hpp"
 #include <iostream>
 
+
 namespace coup
 {
 
@@ -9,16 +10,22 @@ namespace coup
     {
         this->player_turn = 0;
         this->game_is_on = false;
+        this->game_started = false;
+    }
+
+    void Game::set_game_started(){
+        this->game_started = true;
     }
 
     void Game::add_player(std::string &name)
     {
-        for (int i = 0; i < this->active_players.size(); i++)
+        if (this->active_players.size() == MAX_PLAYERS_AMOUNT)
         {
-            if (strcmp(this->active_players.at((unsigned int)i).c_str(), name.c_str()) == 0)
-            {
-                throw std::runtime_error("This nickname already in use!");
-            }
+            throw std::runtime_error("Too many players are already playing the game..\n");
+        }
+        if (this->game_started)
+        {
+            throw std::runtime_error("Game already started..\n");
         }
 
         if (!this->active_players.empty())
@@ -31,7 +38,7 @@ namespace coup
         this->kill_list[name] = "";
     }
 
-    bool Game::get_game_is_on(){
+    bool Game::get_game_is_on() const{
         return this->game_is_on;
     }
     void Game::kill_player(std::string &name)
@@ -63,6 +70,12 @@ namespace coup
     void Game::set_next_player_turn()
     {
         this->player_turn = (this->player_turn + 1) % (int)this->active_players.size();
+        // If the player was couped we skip him
+        if (!this->kill_list.at(this->active_players.at((unsigned int)this->player_turn)).empty())
+        {
+            set_next_player_turn();
+        }
+        
     }
 
     void Game::set_player_action(const int do_action, std::string &to)
@@ -79,7 +92,6 @@ namespace coup
     }
 
     void Game::set_kill_list(std::string &who_to_kill, std::string &name){
-        // this->kill_list.at(name) = who_to_kill;
         this->kill_list.at(who_to_kill) = name;
     }
 
@@ -94,8 +106,13 @@ namespace coup
 
     std::string Game::winner()
     {
+        if (!this->game_started)
+        {
+            throw std::runtime_error("Game didn't started yet..\n");
+        }
+        
         std::vector<std::string> temp;
-        for (std::string name : this->active_players)
+        for (std::string &name : this->active_players)
         {
             if (this->kill_list.at(name).empty())
             {

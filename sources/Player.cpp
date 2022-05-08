@@ -9,22 +9,15 @@ namespace coup
         this->name = "non";
         this->money = 0;
         this->my_game = NULL;
+        this->vic = NULL;
     }
 
     Player::Player(Game &game, std::string &name)
     {
         this->my_game = &game;
+        this->vic = NULL;
         this->name = name;
         this->money = 0;
-        this->on_standby = false;
-        std::vector<std::string> game_players = game.players();
-        for (auto &player : game_players)
-        {
-            if (strcmp(player.c_str(), name.c_str()) == 0)
-            {
-                throw std::runtime_error("This nickname already in use!\n");
-            }
-        }
     }
 
     bool Player::before_my_turn()
@@ -33,7 +26,7 @@ namespace coup
         {
             throw std::runtime_error("The game didn't start yet..\n");
         }
-        
+        this->my_game->set_game_started();
         if (!this->my_game->get_is_killed(name).empty())
         {
             std::string temp;
@@ -50,14 +43,17 @@ namespace coup
         return true;
     }
 
+    void Player::inc_vic_coins(const int amount){
+        this->vic->set_coins(this->vic->coins() + amount);
+    }
+
     std::string &Player::get_player_name()
     {
         return name;
     }
 
-    int Player::coins()
+    int Player::coins() const
     {
-        before_my_turn();
         return this->money;
     }
 
@@ -90,7 +86,6 @@ namespace coup
         this->my_game->set_next_player_turn();
     }
 
-    // before the turn check if flag is true if so do cois += 2
     void Player::foreign_aid()
     {
         if (strcmp(this->my_game->turn().c_str(), name.c_str()) != 0)
@@ -119,7 +114,7 @@ namespace coup
         }
         std::vector<std::string> players_left = this->my_game->players();
         bool flag = false;
-        for (std::string name : players_left)
+        for (std::string &name : players_left)
         {
             if (strcmp(name.c_str(), player.get_player_name().c_str()) == 0)
             {
@@ -134,7 +129,9 @@ namespace coup
         {
             if (this->money < COUP_COST)
             {
-                throw std::runtime_error("Not enough coins!");
+                std::string warning = this->name + " dont has enough coins!";
+                std::cout << warning << " he has only " << this->coins() << " coins!\n";
+                throw std::runtime_error(warning);
             }
             this->my_game->kill_player(player.get_player_name());
             this->money -= COUP_COST;

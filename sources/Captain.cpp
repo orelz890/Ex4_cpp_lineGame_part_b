@@ -6,7 +6,6 @@ namespace coup
     Captain::Captain(Game &game, std::string name) : Player(game, name)
     {
         this->my_role = "Captain";
-        this->vic = Player();
         game.add_player(name);
     }
 
@@ -28,9 +27,9 @@ namespace coup
         if (act == STEAL_BLOCKED)
         {
             this->my_game->set_player_action(ZERO, name);
-            this->set_coins(this->coins() - STEAL_AMOUNT);
-            vic.set_coins(vic.coins() + STEAL_AMOUNT);
-            vic = Player();
+            this->set_coins(this->coins() - STEAL);
+            vic->set_coins(vic->coins() + STEAL);
+            vic = NULL;
         }
         return true;
     }
@@ -47,12 +46,26 @@ namespace coup
         }
         if (before_my_turn())
         {
+
             this->my_game->set_player_action(STEAL, player.get_player_name());
             this->last_action[0] = "steal";
             this->last_action[1] = player.get_player_name();
-            this->set_coins(this->coins() + 1);
-            player.set_coins(player.coins() - 1);
-            vic = player;
+            vic = &player;
+
+            if (player.coins() > 1)
+            {
+                this->set_coins(this->coins() + STEAL);
+                player.set_coins(player.coins() - STEAL);
+            }
+            else if(player.coins() == 1)
+            {
+                this->set_coins(this->coins() + TRANSFER_AMOUNT);
+                player.set_coins(player.coins() - TRANSFER_AMOUNT);
+            }
+            else
+            {
+                this->my_game->set_player_action(ZERO, player.get_player_name());
+            }
         }
         this->my_game->set_next_player_turn();
     }
